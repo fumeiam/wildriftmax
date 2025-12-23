@@ -1,0 +1,4 @@
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+thead { background: #111; color: #fff; }
+tbody tr:hover { background: #f3f3f3; }

@@ -37,22 +37,7 @@
   </label>
 </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Champion</th>
-      <th>Roles</th>
-      <th>Server WR</th>
-      <th>Overall WR</th>
-      <th>Previous Patch WR</th>
-      <th>Rank #1</th>
-      <th>Max Points</th>
-      <th>Prev Rank #1</th>
-      <th>Prev Max Points</th>
-    </tr>
-  </thead>
-  <tbody id="champTable"></tbody>
-</table>
+<div id="champList" class="champ-list"></div>
 
 <script>
 const champions = {{ champions | tojson }};
@@ -202,5 +187,6 @@ render();
 
 </body>
 </html>
+
 
 

@@ -134,3 +134,86 @@ tbody tr:hover {
   vertical-align: middle;
   background: #000;
 }
+
+/* ===============================
+   CARD-BASED CHAMPION LIST
+================================ */
+
+.champ-list {
+  margin: 0 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.champ-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 260px repeat(6, 1fr);
+  gap: 14px;
+  align-items: center;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.champ-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* Champion identity */
+.champ-id {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.champ-id img {
+  height: 42px;
+  width: 42px;
+  border-radius: 50%;
+  background: #000;
+}
+
+.champ-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Role icons */
+.champ-roles {
+  margin-top: 4px;
+}
+
+/* Stat blocks */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .champ-card {
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 16px;
+  }
+}
+
+@media (max-width: 700px) {
+  .champ-card {
+    grid-template-columns: 1fr;
+  }
+}

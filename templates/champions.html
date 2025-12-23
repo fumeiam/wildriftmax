@@ -117,8 +117,8 @@ function bestRoleForServer(champ, patch) {
 /* ---------- RENDER ---------- */
 
 function render() {
-  const tbody = document.getElementById("champTable");
-  tbody.innerHTML = "";
+  const list = document.getElementById("champList");
+  list.innerHTML = "";
 
   let list = champions.filter(c => {
     if (currentRole === "ALL") return true;
@@ -187,6 +187,7 @@ render();
 
 </body>
 </html>
+
 
 
 

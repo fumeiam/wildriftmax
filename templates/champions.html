@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Champions</title>
+  <title>Wild Rift Champion Stats</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<nav style="margin-bottom:16px;">
-  <strong>Champions</strong>
-</nav>
+<h2>Champion Stats</h2>
 
-<div style="display:flex; gap:12px; margin-bottom:12px;">
+<!-- CONTROLS -->
+<div style="display:flex;gap:12px;margin-bottom:12px;">
   <label>
     Server:
     <select id="serverSelect">
@@ -31,6 +30,11 @@
       <option value="Support">Support</option>
     </select>
   </label>
+
+  <label>
+    Patch:
+    <select id="patchSelect"></select>
+  </label>
 </div>
 
 <table>
@@ -39,8 +43,12 @@
       <th>Champion</th>
       <th>Roles</th>
       <th>Server WR</th>
+      <th>Overall WR</th>
+      <th>Previous Patch WR</th>
       <th>Rank #1</th>
       <th>Max Points</th>
+      <th>Prev Rank #1</th>
+      <th>Prev Max Points</th>
     </tr>
   </thead>
   <tbody id="champTable"></tbody>
@@ -49,67 +57,145 @@
 <script>
 const champions = {{ champions | tojson }};
 const ROLE_ICON = {{ role_icon | tojson }};
+const CURRENT_PATCH = "{{ current_patch }}";
+const SERVERS = ["SEA","EU","NA"];
 
 let currentServer = "SEA";
 let currentRole = "ALL";
+let selectedPatch = null;
 
-function getRoleForDisplay(champ) {
-  if (currentRole === "ALL") return champ.roles[0]; // primary role
-  return currentRole;
+/* ---------- HELPERS ---------- */
+
+function avg(nums) {
+  return (nums.reduce((a,b)=>a+b,0) / nums.length).toFixed(1);
 }
 
-function renderTable() {
+function getPatches(champ) {
+  const role = champ.roles[0];
+  return Object.keys(champ.stats[role]).sort().reverse();
+}
+
+function buildPatchDropdown() {
+  const patches = new Set();
+  champions.forEach(c => {
+    Object.values(c.stats).forEach(r =>
+      Object.keys(r).forEach(p => patches.add(p))
+    );
+  });
+  const list = Array.from(patches).sort().reverse();
+  const sel = document.getElementById("patchSelect");
+  list.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = p === CURRENT_PATCH ? `${p} (Latest)` : p;
+    sel.appendChild(opt);
+  });
+  selectedPatch = list.find(p => p !== CURRENT_PATCH) || CURRENT_PATCH;
+  sel.value = selectedPatch;
+}
+
+function serverWR(champ) {
+  if (currentRole !== "ALL") {
+    return champ.stats[currentRole][CURRENT_PATCH][currentServer].wr;
+  }
+  return avg(
+    champ.roles.map(r => champ.stats[r][CURRENT_PATCH][currentServer].wr)
+  );
+}
+
+function overallWR(champ, patch) {
+  if (currentRole !== "ALL") {
+    return avg(
+      SERVERS.map(s => champ.stats[currentRole][patch][s].wr)
+    );
+  }
+  return avg(
+    champ.roles.map(r =>
+      avg(SERVERS.map(s => champ.stats[r][patch][s].wr))
+    )
+  );
+}
+
+function bestRoleForServer(champ, patch) {
+  let best = champ.roles[0];
+  let bestWR = -1;
+  champ.roles.forEach(r => {
+    const wr = champ.stats[r][patch][currentServer].wr;
+    if (wr > bestWR) {
+      bestWR = wr;
+      best = r;
+    }
+  });
+  return best;
+}
+
+/* ---------- RENDER ---------- */
+
+function render() {
   const tbody = document.getElementById("champTable");
   tbody.innerHTML = "";
 
-  // filter
-  let filtered = champions.filter(c => {
+  let list = champions.filter(c => {
     if (currentRole === "ALL") return true;
     return c.roles.includes(currentRole);
   });
 
-  // map to display stats
-  let rows = filtered.map(c => {
-    const role = getRoleForDisplay(c);
-    const s = c.stats[role]?.[currentServer];
-    if (!s) return null;
-    return { champ: c, role, stat: s };
-  }).filter(Boolean);
+  list.sort((a,b) => serverWR(b) - serverWR(a));
 
-  // sort by WR desc
-  rows.sort((a,b) => b.stat.wr - a.stat.wr);
-
-  // render
-  rows.forEach(({champ, role, stat}) => {
-    const roleIcons = champ.roles.map(r =>
-      `<img src="${ROLE_ICON[r]}" alt="${r}" title="${r}" style="height:18px;margin-right:4px;">`
+  list.forEach(c => {
+    const roleIcons = c.roles.map(r =>
+      `<img src="${ROLE_ICON[r]}" title="${r}" style="height:18px;margin-right:4px;">`
     ).join("");
+
+    const curRole = currentRole === "ALL"
+      ? bestRoleForServer(c, CURRENT_PATCH)
+      : currentRole;
+
+    const prevRole = currentRole === "ALL"
+      ? bestRoleForServer(c, selectedPatch)
+      : currentRole;
+
+    const curStats = c.stats[curRole][CURRENT_PATCH][currentServer];
+    const prevStats = c.stats[prevRole][selectedPatch][currentServer];
 
     tbody.insertAdjacentHTML("beforeend", `
       <tr>
         <td>
-          <img src="${champ.icon}" style="height:24px;vertical-align:middle;margin-right:6px;">
-          ${champ.name}
+          <img src="${c.icon}" style="height:24px;vertical-align:middle;margin-right:6px;">
+          ${c.name}
         </td>
         <td>${roleIcons}</td>
-        <td>${stat.wr}%</td>
-        <td>${stat.rank1}</td>
-        <td>${stat.points}</td>
+        <td>${serverWR(c)}%</td>
+        <td>${overallWR(c, CURRENT_PATCH)}%</td>
+        <td>${overallWR(c, selectedPatch)}%</td>
+        <td>${curStats.rank1}</td>
+        <td>${curStats.points}</td>
+        <td>${prevStats.rank1}</td>
+        <td>${prevStats.points}</td>
       </tr>
     `);
   });
 }
 
-document.getElementById("serverSelect").addEventListener("change", e => {
-  currentServer = e.target.value;
-  renderTable();
-});
-document.getElementById("roleSelect").addEventListener("change", e => {
-  currentRole = e.target.value;
-  renderTable();
-});
+/* ---------- EVENTS ---------- */
 
-renderTable();
+document.getElementById("serverSelect").onchange = e => {
+  currentServer = e.target.value;
+  render();
+};
+document.getElementById("roleSelect").onchange = e => {
+  currentRole = e.target.value;
+  render();
+};
+document.getElementById("patchSelect").onchange = e => {
+  selectedPatch = e.target.value;
+  render();
+};
+
+/* ---------- INIT ---------- */
+
+buildPatchDropdown();
+render();
 </script>
 
 </body>

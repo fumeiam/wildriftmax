@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Champions</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Champion Stats</h1>
+
+<label>Server:</label>
+<select id="serverSelect">
+  <option value="SEA">SEA</option>
+  <option value="EUW">EUW</option>
+</select>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Server WR</th>
+      <th>Global WR</th>
+      <th>Tier</th>
+      <th>Rank #1</th>
+      <th>Max Points</th>
+    </tr>
+  </thead>
+  <tbody id="champTable"></tbody>
+</table>
+
+<script>
+const champions = {{ champions | tojson }};
+let server = "SEA";
+
+function render() {
+  const tbody = document.getElementById("champTable");
+  tbody.innerHTML = "";
+
+  champions.forEach(c => {
+    const s = c.servers[server];
+    tbody.innerHTML += `
+      <tr>
+        <td>${c.name}</td>
+        <td>${c.role}</td>
+        <td>${s.wr}%</td>
+        <td>${c.global_wr}%</td>
+        <td>${c.tier}</td>
+        <td>${s.rank1}</td>
+        <td>${s.points}</td>
+      </tr>
+    `;
+  });
+}
+
+document.getElementById("serverSelect").addEventListener("change", e => {
+  server = e.target.value;
+  render();
+});
+
+render();
+</script>
+
+</body>
+</html>

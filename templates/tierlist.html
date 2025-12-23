@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tier List</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Community Tier List</h1>
+
+{% for tier in ["S","A","B","C"] %}
+<h2>{{ tier }} Tier</h2>
+<ul>
+{% for c in champions if c.tier == tier %}
+  <li onclick="vote('{{ c.name }}','{{ tier }}')">{{ c.name }}</li>
+{% endfor %}
+</ul>
+{% endfor %}
+
+<script>
+function vote(name, tier) {
+  const agree = confirm(`Agree with ${name} in ${tier} tier?`);
+  if (!agree) {
+    const newTier = prompt("Which tier? (S/A/B/C)");
+    if (newTier) {
+      alert("Vote recorded (logic will be added)");
+    }
+  } else {
+    alert("Vote recorded (logic will be added)");
+  }
+}
+</script>
+
+</body>
+</html>

@@ -6,22 +6,39 @@
 </head>
 <body>
 
-<h1>Champion Stats</h1>
+<nav style="margin-bottom:16px;">
+  <strong>Champions</strong>
+</nav>
 
-<label>Server:</label>
-<select id="serverSelect">
-  <option value="SEA">SEA</option>
-  <option value="EUW">EUW</option>
-</select>
+<div style="display:flex; gap:12px; margin-bottom:12px;">
+  <label>
+    Server:
+    <select id="serverSelect">
+      <option value="SEA">SEA</option>
+      <option value="EU">EU</option>
+      <option value="NA">NA</option>
+    </select>
+  </label>
+
+  <label>
+    Role:
+    <select id="roleSelect">
+      <option value="ALL">All Roles</option>
+      <option value="Baron">Baron</option>
+      <option value="Jungle">Jungle</option>
+      <option value="Mid">Mid</option>
+      <option value="Dragon">Dragon</option>
+      <option value="Support">Support</option>
+    </select>
+  </label>
+</div>
 
 <table>
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Role</th>
+      <th>Champion</th>
+      <th>Roles</th>
       <th>Server WR</th>
-      <th>Global WR</th>
-      <th>Tier</th>
       <th>Rank #1</th>
       <th>Max Points</th>
     </tr>
@@ -31,34 +48,68 @@
 
 <script>
 const champions = {{ champions | tojson }};
-let server = "SEA";
+const ROLE_ICON = {{ role_icon | tojson }};
 
-function render() {
+let currentServer = "SEA";
+let currentRole = "ALL";
+
+function getRoleForDisplay(champ) {
+  if (currentRole === "ALL") return champ.roles[0]; // primary role
+  return currentRole;
+}
+
+function renderTable() {
   const tbody = document.getElementById("champTable");
   tbody.innerHTML = "";
 
-  champions.forEach(c => {
-    const s = c.servers[server];
-    tbody.innerHTML += `
+  // filter
+  let filtered = champions.filter(c => {
+    if (currentRole === "ALL") return true;
+    return c.roles.includes(currentRole);
+  });
+
+  // map to display stats
+  let rows = filtered.map(c => {
+    const role = getRoleForDisplay(c);
+    const s = c.stats[role]?.[currentServer];
+    if (!s) return null;
+    return { champ: c, role, stat: s };
+  }).filter(Boolean);
+
+  // sort by WR desc
+  rows.sort((a,b) => b.stat.wr - a.stat.wr);
+
+  // render
+  rows.forEach(({champ, role, stat}) => {
+    const roleIcons = champ.roles.map(r =>
+      `<img src="${ROLE_ICON[r]}" alt="${r}" title="${r}" style="height:18px;margin-right:4px;">`
+    ).join("");
+
+    tbody.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${c.name}</td>
-        <td>${c.role}</td>
-        <td>${s.wr}%</td>
-        <td>${c.global_wr}%</td>
-        <td>${c.tier}</td>
-        <td>${s.rank1}</td>
-        <td>${s.points}</td>
+        <td>
+          <img src="${champ.icon}" style="height:24px;vertical-align:middle;margin-right:6px;">
+          ${champ.name}
+        </td>
+        <td>${roleIcons}</td>
+        <td>${stat.wr}%</td>
+        <td>${stat.rank1}</td>
+        <td>${stat.points}</td>
       </tr>
-    `;
+    `);
   });
 }
 
 document.getElementById("serverSelect").addEventListener("change", e => {
-  server = e.target.value;
-  render();
+  currentServer = e.target.value;
+  renderTable();
+});
+document.getElementById("roleSelect").addEventListener("change", e => {
+  currentRole = e.target.value;
+  renderTable();
 });
 
-render();
+renderTable();
 </script>
 
 </body>

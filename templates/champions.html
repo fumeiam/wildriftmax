@@ -165,7 +165,9 @@ function render() {
           ${c.name}
         </td>
         <td>${roleIcons}</td>
-        <td>${serverWR(c)}%</td>
+        <td class="${serverWR(c) >= 50 ? 'wr-good' : 'wr-bad'}">
+          ${serverWR(c)}%
+        </td>  
         <td>${overallWR(c, CURRENT_PATCH)}%</td>
         <td>${overallWR(c, selectedPatch)}%</td>
         <td>${curStats.rank1}</td>
@@ -200,4 +202,5 @@ render();
 
 </body>
 </html>
+
 

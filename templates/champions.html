@@ -129,7 +129,7 @@ function render() {
 
   filtered.forEach(c => {
     const roleIcons = c.roles.map(r =>
-      `<img src="${ROLE_ICON[r]}" title="${r}" style="height:18px;margin-right:4px;">`
+      `<img src="${ROLE_ICON[r]}" title="${r}">`
     ).join("");
 
     const curRole = currentRole === "ALL"
@@ -243,6 +243,7 @@ render();
 
 </body>
 </html>
+
 
 
 

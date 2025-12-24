@@ -120,14 +120,14 @@ function render() {
   const list = document.getElementById("champList");
   list.innerHTML = "";
 
-  let list = champions.filter(c => {
+  let filtered = champions.filter(c => {
     if (currentRole === "ALL") return true;
     return c.roles.includes(currentRole);
   });
 
-  list.sort((a,b) => serverWR(b) - serverWR(a));
+  filtered.sort((a,b) => serverWR(b) - serverWR(a));
 
-  list.forEach(c => {
+  filtered.forEach(c => {
     const roleIcons = c.roles.map(r =>
       `<img src="${ROLE_ICON[r]}" title="${r}" style="height:18px;margin-right:4px;">`
     ).join("");
@@ -243,6 +243,7 @@ render();
 
 </body>
 </html>
+
 
 
 

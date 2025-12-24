@@ -217,3 +217,13 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 }
+/* ===============================
+   ROLE ICON FIX
+================================ */
+.champ-roles img {
+  height: 18px;
+  width: 18px;
+  object-fit: contain;
+  margin-right: 6px;
+  vertical-align: middle;
+}

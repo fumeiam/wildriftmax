@@ -143,23 +143,79 @@ function render() {
     const curStats = c.stats[curRole][CURRENT_PATCH][currentServer];
     const prevStats = c.stats[prevRole][selectedPatch][currentServer];
 
-    tbody.insertAdjacentHTML("beforeend", `
-      <tr>
-        <td>
-          <img src="${c.icon}" style="height:24px;vertical-align:middle;margin-right:6px;">
-          ${c.name}
-        </td>
-        <td>${roleIcons}</td>
-        <td class="${serverWR(c) >= 50 ? 'wr-good' : 'wr-bad'}">
-          ${serverWR(c)}%
-        </td>  
-        <td>${overallWR(c, CURRENT_PATCH)}%</td>
-        <td>${overallWR(c, selectedPatch)}%</td>
-        <td>${curStats.rank1}</td>
-        <td>${curStats.points}</td>
-        <td>${prevStats.rank1}</td>
-        <td>${prevStats.points}</td>
-      </tr>
+    list.insertAdjacentHTML("beforeend", `
+      <div class="champ-card">
+         
+        <!-- Champion -->
+        <div>
+          <div class="champ-id">
+            <img src="${c.icon}">
+            <div>
+              <div class="champ-name">${c.name}</div>
+              <div class="champ-roles">
+                ${roleIcons}
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <!-- Server WR -->
+        <div class="stat">
+          <div class="stat-label">Server WR</div>
+          <div class="stat-value ${serverWR(c) >= 50 ? 'wr-good' : 'wr-bad'}">
+            ${serverWR(c)}%
+          </div>
+        </div>
+           
+        <!-- Overall WR -->
+        <div class="stat">
+          <div class="stat-label">Overall WR</div>
+          <div class="stat-value">
+            ${overallWR(c, CURRENT_PATCH)}%
+          </div>
+        </div>
+         
+        <!-- Previous Patch WR -->
+        <div class="stat">
+          <div class="stat-label">Prev Patch WR</div>
+          <div class="stat-value">
+            ${overallWR(c, selectedPatch)}%
+          </div>
+        </div>
+            
+        <!-- Rank #1 -->
+        <div class="stat">
+          <div class="stat-label">Rank #1</div>
+          <div class="stat-value">
+            ${curStats.rank1}
+          </div>
+        </div>
+              
+        <!-- Max Points -->
+        <div class="stat">
+          <div class="stat-label">Max Points</div>
+          <div class="stat-value">
+            ${curStats.points}
+          </div>
+        </div>
+
+        <!-- Previous Rank -->
+        <div class="stat">
+          <div class="stat-label">Prev Rank #1</div>
+          <div class="stat-value">
+            ${prevStats.rank1}
+          </div>
+        </div>
+
+        <!-- Previous Points -->
+        <div class="stat">
+          <div class="stat-label">Prev Max Pts</div>
+          <div class="stat-value">
+            ${prevStats.points}
+          </div>
+        </div>
+         
+      </div>
     `);
   });
 }
@@ -187,6 +243,7 @@ render();
 
 </body>
 </html>
+
 
 
 
